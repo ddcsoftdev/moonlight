@@ -12,6 +12,7 @@
 class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
+class UInputStateComponent;
 
 UCLASS()
 class AMPlayerController : public APlayerController
@@ -20,14 +21,6 @@ class AMPlayerController : public APlayerController
 
 public:
 	AMPlayerController();
-
-	/** Time Threshold to know if it was a short press */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	float ShortPressThreshold;
-
-	/** FX Class that we will spawn when clicking */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UNiagaraSystem* FXCursor;
 
 #pragma region INPUT
 protected:
@@ -121,27 +114,20 @@ protected:
 	void OnSelectRelease();
 #pragma endregion INPUT
 
+#pragma region COMPONENTS
+	UInputStateComponent* InputStateComponent;
+
+#pragma endregion COMPONENTS
 protected:
-	/** True if the controlled character should navigate to the mouse cursor. */
-	uint32 bMoveToMouseCursor : 1;
+
 
 	virtual void SetupInputComponent() override;
 	
 	// To add mapping context
 	virtual void BeginPlay();
 
-	/** Input handlers for SetDestination action. */
-	void OnInputStarted();
-	void OnSetDestinationTriggered();
-	void OnSetDestinationReleased();
-	void OnTouchTriggered();
-	void OnTouchReleased();
-
 private:
-	FVector CachedDestination;
 
-	bool bIsTouch; // Is it a touch device
-	float FollowTime; // For how long it has been pressed
 };
 
 
