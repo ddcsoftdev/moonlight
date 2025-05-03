@@ -13,7 +13,6 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
-#include "InputActionValue.h"
 
 
 AMPlayerController::AMPlayerController()
@@ -110,7 +109,7 @@ void AMPlayerController::OnFaceDownPressed()
 		case EGameState::ShuttingDown:
 			break;
 		default:
-
+			break;
 		}
 	}
 }
