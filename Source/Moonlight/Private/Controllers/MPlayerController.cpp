@@ -905,10 +905,56 @@ void AMPlayerController::OnDPadDownRelease()
 
 void AMPlayerController::OnStartPressed()
 {
+	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
+	{
+		switch (Subsystem->GetGameState())
+		{
+		case EGameState::ActionMode:
+			break;
+
+		case EGameState::StoryMode:
+			break;
+		case EGameState::Menu:
+			break;
+
+		case EGameState::Initializing:
+		case EGameState::Saving:
+		case EGameState::Loading:
+		case EGameState::ShuttingDown:
+			return;
+		default:
+			return;
+		}
+	}
+
+	InputStateComponent->SetInputStatePressed(StartAction);
 }
 
 void AMPlayerController::OnSelectPressed()
 {
+	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
+	{
+		switch (Subsystem->GetGameState())
+		{
+		case EGameState::ActionMode:
+			break;
+
+		case EGameState::StoryMode:
+			break;
+		case EGameState::Menu:
+			break;
+
+		case EGameState::Initializing:
+		case EGameState::Saving:
+		case EGameState::Loading:
+		case EGameState::ShuttingDown:
+			return;
+		default:
+			return;
+		}
+	}
+
+	InputStateComponent->SetInputStatePressed(SelectAction);
 }
 
 void AMPlayerController::OnStartRelease()
