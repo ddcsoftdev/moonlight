@@ -11,6 +11,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 #include "Components/HealthComponent.h"
 #include "Components/MovementDataComponent.h"
@@ -18,6 +20,8 @@
 #include "Components/EnergyComponent.h"
 #include "Components/SpellComponent.h"
 #include "Components/TalentComponent.h"
+#include "Spells/GenericSpell.h"
+#include "Spells/DashSpell.h"
 
 AMPlayerCharacter::AMPlayerCharacter()
 {
@@ -25,6 +29,7 @@ AMPlayerCharacter::AMPlayerCharacter()
 
 	DamageComponent = CreateDefaultSubobject<UDamageComponent>(TEXT("DamageComponent"));
 	EnergyComponent = CreateDefaultSubobject<UEnergyComponent>(TEXT("EnergyComponent"));
+	SpellComponent = CreateDefaultSubobject<USpellComponent>(TEXT("SpellComponent"));
 	TalentComponent = CreateDefaultSubobject<UTalentComponent>(TEXT("TalentComponent"));
 
 	// Set size for player capsule
@@ -77,3 +82,34 @@ void AMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 }
 
+void AMPlayerCharacter::MoveCharacter(FVector2D Direction)
+{
+	if (Direction.IsNearlyZero())
+	{
+		return;
+	}
+	const FRotator YawRotation(0, GetControlRotation().Yaw, 0);
+	const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+	{
+		float CurrentSpeed = MovementComp->MaxWalkSpeed;
+		if (CurrentSpeed != MovementDataComponent->GetWalkingSpeed())
+		{
+			MovementComp->MaxWalkSpeed = MovementDataComponent->GetWalkingSpeed();
+		}
+	}
+
+	AddMovementInput(Forward, Direction.Y);
+	AddMovementInput(Right, Direction.X);
+}
+
+void AMPlayerCharacter::PlayerDash()
+{
+	if (UDashSpell* Dash = Cast<UDashSpell>(SpellComponent->GetSpell(UDashSpell::StaticClass())))
+	{
+		TMap<FName, UObject*> Params;
+		Params.Add(FName("Character"), this);
+		Dash->ExecuteSpell(Params);
+	}
+}

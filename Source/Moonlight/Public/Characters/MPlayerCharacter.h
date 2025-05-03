@@ -45,6 +45,13 @@ protected:
 	class USpringArmComponent* CameraBoom;
 #pragma endregion
 
+#pragma region MOVEMENT
+public:
+	virtual void MoveCharacter(FVector2D Direction) override;
+	 void PlayerDash();
+
+#pragma endregion MOVEMENT
+
 
 #pragma region GET/SET
 public:

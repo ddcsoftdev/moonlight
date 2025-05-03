@@ -7,6 +7,8 @@
 UMovementDataComponent::UMovementDataComponent()
 {
 	PrimaryComponentTick.bStartWithTickEnabled = false;
+
+	MovementState = EMovementState::Idle;
 }
 
 

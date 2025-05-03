@@ -97,8 +97,8 @@ public:
 
 	FORCEINLINE EInputState GetInputState(const UInputAction* Key) { return GetInput(Key)->GetState(); }
 	FORCEINLINE float GetInputTimeElapsed(const UInputAction* Key) { return GetInput(Key)->GetElaspedTime(); }
-	FORCEINLINE void SetInputStatePressed(const UInputAction* Key) { GetInput(Key)->SetState(EInputState::Pressed); }
-	FORCEINLINE void SetInputStateReleased(const UInputAction* Key) { GetInput(Key)->SetState(EInputState::Released); }
+	FORCEINLINE void SetInputStatePressed(const UInputAction* Key, UWorld* WorldRef) { GetInput(Key)->SetState(EInputState::Pressed, WorldRef); }
+	FORCEINLINE void SetInputStateReleased(const UInputAction* Key, UWorld* WorldRef) { GetInput(Key)->SetState(EInputState::Released, WorldRef); }
 
 #pragma endregion
 };

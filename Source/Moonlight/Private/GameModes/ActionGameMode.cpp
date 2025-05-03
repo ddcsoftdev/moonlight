@@ -1,12 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "GameModes/MMainGameMode.h"
+#include "GameModes/ActionGameMode.h"
 #include "Controllers/MPlayerController.h"
 #include "Characters/MPlayerCharacter.h"
+#include "Subsystems/GameStateSubsystem.h"
 
 #include "UObject/ConstructorHelpers.h"
 
-AMMainGameMode::AMMainGameMode()
+AActionGameMode::AActionGameMode()
 {
 	// use our custom PlayerController class
 	PlayerControllerClass = AMPlayerCharacter::StaticClass();
@@ -24,4 +25,15 @@ AMMainGameMode::AMMainGameMode()
 	{
 		PlayerControllerClass = PlayerControllerBPClass.Class;
 	}
+}
+
+void AActionGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
+	{
+		Subsystem->SetGameState(EGameState::ActionMode);
+	}
+	
 }

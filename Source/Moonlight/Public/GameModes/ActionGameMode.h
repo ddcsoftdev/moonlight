@@ -4,15 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "MMainGameMode.generated.h"
+#include "ActionGameMode.generated.h"
 
 UCLASS(minimalapi)
-class AMMainGameMode : public AGameModeBase
+class AActionGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-	AMMainGameMode();
+	AActionGameMode();
+
+	virtual void BeginPlay() override;
 };
 
 

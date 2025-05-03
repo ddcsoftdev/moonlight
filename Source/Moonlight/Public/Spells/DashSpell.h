@@ -7,7 +7,8 @@
 #include "Spells/GenericSpell.h"
 #include "DashSpell.generated.h"
 
-UCLASS()
+class AMCharacter;
+UCLASS(Blueprintable)
 class MOONLIGHT_API UDashSpell : public UGenericSpell
 {
 	GENERATED_BODY()
@@ -15,4 +16,11 @@ class MOONLIGHT_API UDashSpell : public UGenericSpell
 public:
 	UDashSpell();
 
+	virtual void ExecuteSpell(TMap<FName, UObject*>& Params) override;
+
+	UPROPERTY(EditAnywhere, Category = Specs)
+	float LaunchDistance = 2500.0f;
+
+private:
+	void LaunchDash(AMCharacter* Character);
 };

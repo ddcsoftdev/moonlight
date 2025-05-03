@@ -10,46 +10,53 @@ UGameStateSubsystem::UGameStateSubsystem()
 {
 }
 
-void UGameStateSubsystem::Init()
+void UGameStateSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	Super::Init();
+	Super::Initialize(Collection);
 
+	UE_LOG(LogTemp, Log, TEXT("GameStateSubsystem Initialized"));
 	SetGameState(EGameState::Initializing);
-	UE_LOG(LogTemp, Log, TEXT("UGameStateSubsystem: Initializing..."));
 }
 
-void UGameStateSubsystem::Shutdown()
+void UGameStateSubsystem::Deinitialize()
 {
-	UE_LOG(LogTemp, Log, TEXT("UGameStateSubsystem: Shutting down..."));
+	UE_LOG(LogTemp, Log, TEXT("GameStateSubsystem Deinitialized"));
 	SetGameState(EGameState::ShuttingDown);
 
-	Super::Shutdown();
-}
-
-void UGameStateSubsystem::OnStart()
-{
-	Super::OnStart();
-
-	UE_LOG(LogTemp, Log, TEXT("UGameStateSubsystem: Game Starting"));
+	Super::Deinitialize();
 }
 
 UGameStateSubsystem* UGameStateSubsystem::Get(const UObject* WorldContextObject)
 {
-	if (WorldContextObject)
-	{
-		UWorld* World = WorldContextObject->GetWorld();
-		if (World) 
-		{
-			return Cast<UGameStateSubsystem>(World->GetGameInstance());
-		}
-		else 
-		{
-			checkf(false, TEXT("Failed to get World from WorldContextObject"));
-		}
-	}
-	else
-	{
-		checkf(false, TEXT("Failed to get WorldContextObject"));
-	}
-	return nullptr;
+    if (!WorldContextObject)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UGameStateSubsystem::Get: WorldContextObject is null."));
+        checkf(false, TEXT("UGameStateSubsystem::Get: WorldContextObject is null."))
+        return nullptr;
+    }
+
+    UWorld* World = WorldContextObject->GetWorld();
+    if (!World)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UGameStateSubsystem::Get: Failed to get World from WorldContextObject."));
+        checkf(false, TEXT("UGameStateSubsystem::Get: Failed to get World from WorldContextObject."))
+        return nullptr;
+    }
+
+    UGameInstance* GameInstance = World->GetGameInstance();
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UGameStateSubsystem::Get: Failed to get GameInstance from World."));
+        checkf(false, TEXT("UGameStateSubsystem::Get: WorldContextObject is null."));
+        return nullptr;
+    }
+
+    UGameStateSubsystem* Subsystem = GameInstance->GetSubsystem<UGameStateSubsystem>();
+    if (!Subsystem)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UGameStateSubsystem::Get: Failed to get UGameStateSubsystem from GameInstance."));
+        checkf(false, TEXT("UGameStateSubsystem::Get: WorldContextObject is null."))
+    }
+	
+    return Subsystem;
 }

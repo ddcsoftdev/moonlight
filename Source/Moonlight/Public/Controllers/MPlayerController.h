@@ -13,6 +13,7 @@ class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
 class UInputStateComponent;
+class AMPlayerCharacter;
 
 UCLASS()
 class AMPlayerController : public APlayerController
@@ -89,13 +90,15 @@ protected:
 	void OnTriggerRightRelease();
 	void OnTriggerLeftRelease();
 
-	void OnRightStickInput(const FInputActionValue& Value);
-	void OnLeftStickInput(const FInputActionValue& Value);
-	void OnRightStickPressed();
-	void OnLeftStickPressed();
+	void OnRightStickInputPressed(const FInputActionValue& Value);
+	void OnLeftStickInputPressed(const FInputActionValue& Value);
+	void OnRightStickClickPressed();
+	void OnLeftStickClickPressed();
 
-	void OnRightStickRelease();
-	void OnLeftStickRelease();
+	void OnRightStickInputReleased(const FInputActionValue& Value);
+	void OnLeftStickInputReleased(const FInputActionValue& Value);
+	void OnRightStickClickRelease();
+	void OnLeftStickClickRelease();
 
 	void OnDPadUpPressed();
 	void OnDPadLeftPressed();
@@ -118,6 +121,11 @@ protected:
 	UInputStateComponent* InputStateComponent;
 
 #pragma endregion COMPONENTS
+
+#pragma region HELPERS
+	AMPlayerCharacter* const GetPlayerCharacter();
+
+#pragma endregion HELPERS
 protected:
 
 

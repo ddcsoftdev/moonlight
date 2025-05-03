@@ -31,6 +31,19 @@ void AMPlayerController::BeginPlay()
 	Super::BeginPlay();
 }
 
+AMPlayerCharacter* const AMPlayerController::GetPlayerCharacter()
+{
+	if (!GetCharacter())
+	{
+		return nullptr;
+	}
+	if (AMPlayerCharacter* PlayerCharacter = Cast<AMPlayerCharacter>(GetCharacter()))
+	{
+		return PlayerCharacter;
+	}
+	return nullptr;
+}
+
 void AMPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings
@@ -68,12 +81,14 @@ void AMPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(TriggerRightAction, ETriggerEvent::Completed, this, &AMPlayerController::OnTriggerRightRelease);
 		EnhancedInputComponent->BindAction(TriggerLeftAction, ETriggerEvent::Completed, this, &AMPlayerController::OnTriggerLeftRelease);
 
-		EnhancedInputComponent->BindAction(RightStickAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnRightStickInput);
-		EnhancedInputComponent->BindAction(LeftStickAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnLeftStickInput);
-		EnhancedInputComponent->BindAction(RightStickClickAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnRightStickPressed);
-		EnhancedInputComponent->BindAction(LeftStickClickAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnLeftStickPressed);
-		EnhancedInputComponent->BindAction(RightStickClickAction, ETriggerEvent::Completed, this, &AMPlayerController::OnRightStickRelease);
-		EnhancedInputComponent->BindAction(LeftStickClickAction, ETriggerEvent::Completed, this, &AMPlayerController::OnLeftStickRelease);
+		EnhancedInputComponent->BindAction(RightStickAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnRightStickInputPressed);
+		EnhancedInputComponent->BindAction(LeftStickAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnLeftStickInputPressed);
+		EnhancedInputComponent->BindAction(RightStickClickAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnRightStickClickPressed);
+		EnhancedInputComponent->BindAction(LeftStickClickAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnLeftStickClickPressed);
+		EnhancedInputComponent->BindAction(RightStickAction, ETriggerEvent::Completed, this, &AMPlayerController::OnRightStickInputReleased);
+		EnhancedInputComponent->BindAction(LeftStickAction, ETriggerEvent::Completed, this, &AMPlayerController::OnLeftStickInputReleased);
+		EnhancedInputComponent->BindAction(RightStickClickAction, ETriggerEvent::Completed, this, &AMPlayerController::OnRightStickClickRelease);
+		EnhancedInputComponent->BindAction(LeftStickClickAction, ETriggerEvent::Completed, this, &AMPlayerController::OnLeftStickClickRelease);
 
 		EnhancedInputComponent->BindAction(FaceUpArrowAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnDPadUpPressed);
 		EnhancedInputComponent->BindAction(FaceLeftArrowAction, ETriggerEvent::Triggered, this, &AMPlayerController::OnDPadLeftPressed);
@@ -104,9 +119,14 @@ void AMPlayerController::OnFaceDownPressed()
 		switch (Subsystem->GetGameState())
 		{
 		case EGameState::ActionMode:
-			break;
-
 		case EGameState::StoryMode:
+			if (AMPlayerCharacter* PlayerCharacter = GetPlayerCharacter())
+			{
+				if (InputStateComponent->GetInputState(FaceDownAction) == EInputState::Unpressed)
+				{
+					PlayerCharacter->PlayerDash();
+				}
+			}
 			break;
 		case EGameState::Menu:
 			break;
@@ -121,7 +141,7 @@ void AMPlayerController::OnFaceDownPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(FaceDownAction);
+	InputStateComponent->SetInputStatePressed(FaceDownAction, GetWorld());
 }
 
 void AMPlayerController::OnFaceLeftPressed()
@@ -148,7 +168,7 @@ void AMPlayerController::OnFaceLeftPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(FaceLeftAction);
+	InputStateComponent->SetInputStatePressed(FaceLeftAction, GetWorld());
 }
 
 void AMPlayerController::OnFaceRightPressed()
@@ -175,7 +195,7 @@ void AMPlayerController::OnFaceRightPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(FaceRightAction);
+	InputStateComponent->SetInputStatePressed(FaceRightAction, GetWorld());
 }
 
 void AMPlayerController::OnFaceUpPressed()
@@ -202,7 +222,7 @@ void AMPlayerController::OnFaceUpPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(FaceUpAction);
+	InputStateComponent->SetInputStatePressed(FaceUpAction, GetWorld());
 }
 
 void AMPlayerController::OnFaceDownRelease()
@@ -229,7 +249,7 @@ void AMPlayerController::OnFaceDownRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(FaceDownAction);
+	InputStateComponent->SetInputStateReleased(FaceDownAction, GetWorld());
 }
 
 void AMPlayerController::OnFaceLeftRelease()
@@ -256,7 +276,7 @@ void AMPlayerController::OnFaceLeftRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(FaceLeftAction);
+	InputStateComponent->SetInputStateReleased(FaceLeftAction, GetWorld());
 }
 
 void AMPlayerController::OnFaceRightRelease()
@@ -283,7 +303,7 @@ void AMPlayerController::OnFaceRightRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(FaceRightAction);
+	InputStateComponent->SetInputStateReleased(FaceRightAction, GetWorld());
 }
 
 void AMPlayerController::OnFaceUpRelease()
@@ -310,7 +330,7 @@ void AMPlayerController::OnFaceUpRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(FaceUpAction);
+	InputStateComponent->SetInputStateReleased(FaceUpAction, GetWorld());
 }
 
 void AMPlayerController::OnBumperRightPressed()
@@ -337,7 +357,7 @@ void AMPlayerController::OnBumperRightPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(BumperRightAction);
+	InputStateComponent->SetInputStatePressed(BumperRightAction, GetWorld());
 }
 
 void AMPlayerController::OnBumperLeftPressed()
@@ -364,7 +384,7 @@ void AMPlayerController::OnBumperLeftPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(BumperLeftAction);
+	InputStateComponent->SetInputStatePressed(BumperLeftAction, GetWorld());
 }
 
 void AMPlayerController::OnTriggerRightPressed()
@@ -391,7 +411,7 @@ void AMPlayerController::OnTriggerRightPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(TriggerRightAction);
+	InputStateComponent->SetInputStatePressed(TriggerRightAction, GetWorld());
 }
 
 void AMPlayerController::OnTriggerLeftPressed()
@@ -418,7 +438,7 @@ void AMPlayerController::OnTriggerLeftPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(TriggerLeftAction);
+	InputStateComponent->SetInputStatePressed(TriggerLeftAction, GetWorld());
 }
 
 void AMPlayerController::OnBumperRightRelease()
@@ -445,7 +465,7 @@ void AMPlayerController::OnBumperRightRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(BumperRightAction);
+	InputStateComponent->SetInputStateReleased(BumperRightAction, GetWorld());
 }
 
 void AMPlayerController::OnBumperLeftRelease()
@@ -472,7 +492,7 @@ void AMPlayerController::OnBumperLeftRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(BumperLeftAction);
+	InputStateComponent->SetInputStateReleased(BumperLeftAction, GetWorld());
 }
 
 void AMPlayerController::OnTriggerRightRelease()
@@ -499,7 +519,7 @@ void AMPlayerController::OnTriggerRightRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(TriggerRightAction);
+	InputStateComponent->SetInputStateReleased(TriggerRightAction, GetWorld());
 }
 
 void AMPlayerController::OnTriggerLeftRelease()
@@ -526,18 +546,16 @@ void AMPlayerController::OnTriggerLeftRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(TriggerLeftAction);
+	InputStateComponent->SetInputStateReleased(TriggerLeftAction, GetWorld());
 }
 
-void AMPlayerController::OnRightStickInput(const FInputActionValue& Value)
+void AMPlayerController::OnRightStickInputPressed(const FInputActionValue& Value)
 {
 	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
 	{
 		switch (Subsystem->GetGameState())
 		{
 		case EGameState::ActionMode:
-			break;
-
 		case EGameState::StoryMode:
 			break;
 		case EGameState::Menu:
@@ -552,18 +570,22 @@ void AMPlayerController::OnRightStickInput(const FInputActionValue& Value)
 			return;
 		}
 	}
+	InputStateComponent->SetInputStatePressed(RightStickAction, GetWorld());
 }
 
-void AMPlayerController::OnLeftStickInput(const FInputActionValue& Value)
+void AMPlayerController::OnLeftStickInputPressed(const FInputActionValue& Value)
 {
 	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
 	{
 		switch (Subsystem->GetGameState())
 		{
 		case EGameState::ActionMode:
-			break;
-
 		case EGameState::StoryMode:
+			if (AMPlayerCharacter* PlayerCharacter = GetPlayerCharacter())
+			{
+				FVector2D Direction = Value.Get<FVector2D>();
+				PlayerCharacter->MoveCharacter(Direction);
+			}
 			break;
 		case EGameState::Menu:
 			break;
@@ -577,36 +599,10 @@ void AMPlayerController::OnLeftStickInput(const FInputActionValue& Value)
 			return;
 		}
 	}
+	InputStateComponent->SetInputStatePressed(LeftStickAction, GetWorld());
 }
 
-void AMPlayerController::OnRightStickPressed()
-{
-	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
-	{
-		switch (Subsystem->GetGameState())
-		{
-		case EGameState::ActionMode:
-			break;
-
-		case EGameState::StoryMode:
-			break;
-		case EGameState::Menu:
-			break;
-
-		case EGameState::Initializing:
-		case EGameState::Saving:
-		case EGameState::Loading:
-		case EGameState::ShuttingDown:
-			return;
-		default:
-			return;
-		}
-	}
-
-	InputStateComponent->SetInputStatePressed(RightStickClickAction);
-}
-
-void AMPlayerController::OnLeftStickPressed()
+void AMPlayerController::OnRightStickClickPressed()
 {
 	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
 	{
@@ -630,10 +626,60 @@ void AMPlayerController::OnLeftStickPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(LeftStickClickAction);
+	InputStateComponent->SetInputStatePressed(RightStickClickAction, GetWorld());
 }
 
-void AMPlayerController::OnRightStickRelease()
+void AMPlayerController::OnRightStickInputReleased(const FInputActionValue& Value)
+{
+	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
+	{
+		switch (Subsystem->GetGameState())
+		{
+		case EGameState::ActionMode:
+		case EGameState::StoryMode:
+
+		case EGameState::Menu:
+			break;
+
+		case EGameState::Initializing:
+		case EGameState::Saving:
+		case EGameState::Loading:
+		case EGameState::ShuttingDown:
+			return;
+		default:
+			return;
+		}
+	}
+	InputStateComponent->SetInputStateReleased(RightStickAction, GetWorld());
+}
+
+void AMPlayerController::OnLeftStickInputReleased(const FInputActionValue& Value)
+{
+	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
+	{
+		switch (Subsystem->GetGameState())
+		{
+		case EGameState::ActionMode:
+		case EGameState::StoryMode:
+
+			break;
+		case EGameState::Menu:
+			break;
+
+		case EGameState::Initializing:
+		case EGameState::Saving:
+		case EGameState::Loading:
+		case EGameState::ShuttingDown:
+			return;
+		default:
+			return;
+		}
+	}
+	InputStateComponent->SetInputStateReleased(LeftStickAction, GetWorld());
+}
+
+
+void AMPlayerController::OnLeftStickClickPressed()
 {
 	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
 	{
@@ -657,10 +703,10 @@ void AMPlayerController::OnRightStickRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(RightStickClickAction);
+	InputStateComponent->SetInputStatePressed(LeftStickClickAction, GetWorld());
 }
 
-void AMPlayerController::OnLeftStickRelease()
+void AMPlayerController::OnRightStickClickRelease()
 {
 	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
 	{
@@ -684,7 +730,34 @@ void AMPlayerController::OnLeftStickRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(LeftStickClickAction);
+	InputStateComponent->SetInputStateReleased(RightStickClickAction, GetWorld());
+}
+
+void AMPlayerController::OnLeftStickClickRelease()
+{
+	if (UGameStateSubsystem* Subsystem = UGameStateSubsystem::Get(this))
+	{
+		switch (Subsystem->GetGameState())
+		{
+		case EGameState::ActionMode:
+			break;
+
+		case EGameState::StoryMode:
+			break;
+		case EGameState::Menu:
+			break;
+
+		case EGameState::Initializing:
+		case EGameState::Saving:
+		case EGameState::Loading:
+		case EGameState::ShuttingDown:
+			return;
+		default:
+			return;
+		}
+	}
+
+	InputStateComponent->SetInputStateReleased(LeftStickClickAction, GetWorld());
 }
 
 void AMPlayerController::OnDPadUpPressed()
@@ -711,7 +784,7 @@ void AMPlayerController::OnDPadUpPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(FaceUpArrowAction);
+	InputStateComponent->SetInputStatePressed(FaceUpArrowAction, GetWorld());
 }
 
 void AMPlayerController::OnDPadLeftPressed()
@@ -738,7 +811,7 @@ void AMPlayerController::OnDPadLeftPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(FaceLeftArrowAction);
+	InputStateComponent->SetInputStatePressed(FaceLeftArrowAction, GetWorld());
 }
 
 void AMPlayerController::OnDPadRightPressed()
@@ -765,7 +838,7 @@ void AMPlayerController::OnDPadRightPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(FaceRightArrowAction);
+	InputStateComponent->SetInputStatePressed(FaceRightArrowAction, GetWorld());
 }
 
 void AMPlayerController::OnDPadDownPressed()
@@ -792,7 +865,7 @@ void AMPlayerController::OnDPadDownPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(FaceDownArrowAction);
+	InputStateComponent->SetInputStatePressed(FaceDownArrowAction, GetWorld());
 }
 
 void AMPlayerController::OnDPadUpRelease()
@@ -819,7 +892,7 @@ void AMPlayerController::OnDPadUpRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(FaceUpArrowAction);
+	InputStateComponent->SetInputStateReleased(FaceUpArrowAction, GetWorld());
 }
 
 void AMPlayerController::OnDPadLeftRelease()
@@ -846,7 +919,7 @@ void AMPlayerController::OnDPadLeftRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(FaceLeftArrowAction);
+	InputStateComponent->SetInputStateReleased(FaceLeftArrowAction, GetWorld());
 }
 
 void AMPlayerController::OnDPadRightRelease()
@@ -873,7 +946,7 @@ void AMPlayerController::OnDPadRightRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(FaceRightArrowAction);
+	InputStateComponent->SetInputStateReleased(FaceRightArrowAction, GetWorld());
 }
 
 void AMPlayerController::OnDPadDownRelease()
@@ -900,7 +973,7 @@ void AMPlayerController::OnDPadDownRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(FaceDownArrowAction);
+	InputStateComponent->SetInputStateReleased(FaceDownArrowAction, GetWorld());
 }
 
 void AMPlayerController::OnStartPressed()
@@ -927,7 +1000,7 @@ void AMPlayerController::OnStartPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(StartAction);
+	InputStateComponent->SetInputStatePressed(StartAction, GetWorld());
 }
 
 void AMPlayerController::OnSelectPressed()
@@ -954,7 +1027,7 @@ void AMPlayerController::OnSelectPressed()
 		}
 	}
 
-	InputStateComponent->SetInputStatePressed(SelectAction);
+	InputStateComponent->SetInputStatePressed(SelectAction, GetWorld());
 }
 
 void AMPlayerController::OnStartRelease()
@@ -981,7 +1054,7 @@ void AMPlayerController::OnStartRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(StartAction);
+	InputStateComponent->SetInputStateReleased(StartAction, GetWorld());
 }
 
 void AMPlayerController::OnSelectRelease()
@@ -1008,7 +1081,7 @@ void AMPlayerController::OnSelectRelease()
 		}
 	}
 
-	InputStateComponent->SetInputStateReleased(SelectAction);
+	InputStateComponent->SetInputStateReleased(SelectAction, GetWorld());
 }
 
 #pragma endregion

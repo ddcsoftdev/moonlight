@@ -23,7 +23,14 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-private:
+#pragma region MOVEMENT
+public:
+
+
+#pragma endregion MOVEMENT
+
+protected:
+	virtual void MoveCharacter(FVector2D Direction = FVector2D::ZeroVector) PURE_VIRTUAL(AMCharacter::MoveCharacter, );
 
 #pragma region COMPONENTS
 protected:

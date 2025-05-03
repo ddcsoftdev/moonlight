@@ -7,17 +7,17 @@
 #include "GameStateSubsystem.generated.h"
 
 UCLASS()
-class MOONLIGHT_API UGameStateSubsystem : public UGameInstance
+class MOONLIGHT_API UGameStateSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
 public:
 	UGameStateSubsystem();
 
-	virtual void Init() override;
-	virtual void Shutdown() override;
-	//Called after Init
-	virtual void OnStart() override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	// Override Deinitialize to clean up (if needed)
+	virtual void Deinitialize() override;
 
 	// Example function to access this instance from anywhere
 	UFUNCTION(BlueprintCallable, Category = "Game")
